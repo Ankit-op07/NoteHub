@@ -1,0 +1,21 @@
+{
+  "extends": [
+    "next",
+    "next/core-web-vitals",
+    "plugin:prettier/recommended"  // Integrates Prettier with ESLint
+  ],
+  "rules": {
+    "react/no-unescaped-entities": "off",  // Fixes ' & " errors in JSX
+    "prettier/prettier": [
+      "error",
+      {
+        "endOfLine": "auto"  // Handles line endings automatically
+      }
+    ]
+  },
+  "settings": {
+    "next": {
+      "rootDir": "./"  // Explicitly set project root
+    }
+  }
+}
