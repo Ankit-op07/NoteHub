@@ -6,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { HTMLAttributes } from "react";
+interface LoginFormProps extends HTMLAttributes<HTMLFormElement> {}
 
-export function LoginForm({ className, ...props }) {
+export function LoginForm({ className, ...props }: LoginFormProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -17,7 +19,7 @@ export function LoginForm({ className, ...props }) {
     signIn("google", { callbackUrl: "/dashboard/onboard" });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setError("");
 
