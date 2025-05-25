@@ -43,12 +43,11 @@ const formSchema = z.object({
     message: "Subject must be at least 3 characters",
   }),
   file: z
-    .custom<FileList>()
-    .transform((file) => file[0]) // Convert FileList to single File
-    .refine((file) => !!file, "Please upload a file")
+    .custom<File>((v) => v instanceof File, {
+      message: "Please upload a valid file",
+    })
     .refine(
       (file) =>
-        file &&
         [
           "application/pdf",
           "application/msword",
