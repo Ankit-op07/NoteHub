@@ -17,25 +17,30 @@ const bufferToStream = (buffer) => {
 
 export async function POST(req) {
     const data = await req.formData();
+    console.log(data, 'data');
     const file = data.get("file");
+    console.log(file, 'file');
 
     if (!file) return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
 
     const buffer = Buffer.from(await file.arrayBuffer());
+    console.log(buffer, 'buffer');
 
     const uploadStream = () =>
         new Promise((resolve, reject) => {
             const stream = cloudinary.uploader.upload_stream(
                 {
                     folder: "student-notes",
-                    resource_type: "auto",
+                    resource_type: "raw",
+                    format: 'pdf'
                 },
                 (error, result) => {
                     if (error) return reject(error);
                     resolve(result);
                 }
             );
-            bufferToStream(buffer).pipe(stream);
+            // bufferToStream(buffer).pipe(stream);
+            stream.end(buffer)
         });
 
     try {

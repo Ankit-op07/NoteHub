@@ -51,7 +51,7 @@ export async function GET(req) {
         if (semester) filter.semester = parseInt(semester);
         if (subject) filter.subject = subject;
 
-        const notes = await Note.find(filter).populate("uploadedBy", "name email");
+        const notes = await Note.find(filter)
 
         return Response.json({ notes });
     } catch (error) {

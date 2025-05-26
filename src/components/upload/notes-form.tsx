@@ -72,8 +72,6 @@ export default function UploadNoteForm() {
     },
   });
 
-  const fileRef = form.register("file");
-
   const onSubmit = async (values: FormValues) => {
     setIsLoading(true);
     try {
@@ -124,17 +122,20 @@ export default function UploadNoteForm() {
         duration: 5000,
         position: "top-right",
       });
-
-      //   router.push("/dashboard/notes");
     } catch (error) {
-      // toast({
-      //   title: "Error",
-      //   description:
-      //     error instanceof Error ? error.message : "An error occurred",
-      //   variant: "destructive",
-      // });
+      toast("Failed to upload note", {
+        icon: "❌",
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+        duration: 5000,
+        position: "top-right",
+      });
     } finally {
       setIsLoading(false);
+      form.reset();
     }
   };
 
@@ -262,7 +263,10 @@ export default function UploadNoteForm() {
                   type="file"
                   accept=".pdf,.doc,.docx"
                   disabled={isLoading}
-                  {...fileRef}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    field.onChange(file); // manually set the file
+                  }}
                 />
               </FormControl>
               <FormMessage />
