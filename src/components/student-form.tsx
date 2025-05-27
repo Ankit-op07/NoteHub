@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-// import { toast } from "@/components/ui/use-toast";
+import toast from "react-hot-toast";
 
 // Form schema with validation
 const formSchema = z.object({
@@ -67,15 +67,23 @@ export function StudentForm() {
       if (!response.ok) {
         throw new Error(data.error || "Failed to submit form");
       }
+      localStorage.setItem("studentId", values.studentId);
+      localStorage.setItem("branch", values.branch);
+      localStorage.setItem("semester", values.semester);
 
-      // Show success toast
-      // toast({
-      //   title: "Success!",
-      //   description: "Student information saved successfully",
-      // });
+      toast("Student information saved successfully", {
+        icon: "🚀",
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+        duration: 5000,
+        position: "top-right",
+      });
 
       // Redirect to notes page with branch and semester
-      // router.push(`/notes?branch=${values.branch}&semester=${values.semester}`);
+      router.push(`/dashboard/notes`);
     } catch (error) {
       // toast({
       //   title: "Error",

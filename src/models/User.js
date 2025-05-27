@@ -54,6 +54,7 @@ const userSchema = new mongoose.Schema({
   googleId: {
     type: String
   },
+  onBoard: { type: Boolean, default: false },
   verified: { type: Boolean, default: false },
   verificationToken: String,
   verificationTokenExpires: Date,

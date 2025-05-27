@@ -64,7 +64,7 @@ export const authOptions = {
                 }
 
                 token.id = existingUser._id;
-                token.isOnboarded = existingUser.studentId ? true : false;
+                token.isOnboarded = existingUser.onBoard
             }
             return token;
         },

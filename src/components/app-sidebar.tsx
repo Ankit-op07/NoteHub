@@ -48,9 +48,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     avatar: session?.user?.image,
   };
   console.log("session", session);
-  // if (session?.user?.isOnboarded) {
-  //   router.push("/dashboard/notes");
-  // }
 
   return (
     <Sidebar collapsible="offcanvas" {...props}>

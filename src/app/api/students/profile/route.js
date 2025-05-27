@@ -21,7 +21,6 @@ export async function POST(request) {
 
         // 2. Authenticate the user
         const session = await getServerSession(authOptions);
-        console.log('session', session)
         if (!session?.user) {
             return NextResponse.json(
                 { error: "Unauthorized" },
@@ -65,7 +64,7 @@ export async function POST(request) {
         // 6. Create the student record
         const user = await User.findOneAndUpdate(
             { email: session.user.email },
-            { studentId, branch, semester: parseInt(semester) },
+            { studentId, branch, semester: parseInt(semester), onBoard: true },
             { new: true }
         );
         // 7. Return success response
@@ -73,6 +72,7 @@ export async function POST(request) {
             {
                 success: true,
                 message: "Student profile created successfully",
+                user
             },
             { status: 201 }
         );
