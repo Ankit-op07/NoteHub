@@ -24,15 +24,12 @@ const userSchema = new mongoose.Schema({
     unique: true,
     trim: true,
     lowercase: true,
-    sparse: true, // Add this line
+    sparse: true,
   },
   branch: {
-    // type: mongoose.Schema.Types.ObjectId,
-    // ref: 'Branch',
     type: String,
     enum: ['cse', 'ece', 'mech', 'civil', 'eee'],
     lowercase: true,
-
   },
   semester: {
     type: Number,

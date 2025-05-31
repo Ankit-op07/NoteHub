@@ -81,35 +81,6 @@ export default function NotesViewer() {
           />
         </div>
       <div className="mb-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-        <div>
-          {/* <Label className="block mb-1">Filter by Branch</Label> */}
-          <Select value={branchFilter} onValueChange={(value) => setBranchFilter(value)}>
-            <SelectTrigger className="rounded-xl">
-              <SelectValue placeholder="All Branches" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All</SelectItem>
-              {uniqueBranches.map(branch => (
-                <SelectItem key={branch} value={branch}>{branch}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          {/* <Label className="block mb-1">Filter by Semester</Label> */}
-          <Select value={semesterFilter} onValueChange={(value) => setSemesterFilter(value)}>
-            <SelectTrigger className="rounded-xl">
-              <SelectValue placeholder="All Semesters" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="All">All</SelectItem>
-              {uniqueSemesters.map(sem => (
-                <SelectItem key={sem} value={sem}>{sem}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
 
         <div>
           {/* <Label className="block mb-1">Filter by Subject</Label> */}
@@ -158,7 +129,8 @@ export default function NotesViewer() {
                         View PDF
                       </a>
                       <a
-                        href={note.fileUrl}
+                        href={note.downloadUrl}
+                        target="_blank"
                         download={note.title + ".pdf"}
                         className="text-green-600 hover:text-green-800 flex items-center gap-1 text-sm font-medium"
                       >

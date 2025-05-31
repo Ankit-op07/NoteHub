@@ -75,36 +75,37 @@ export default function UploadNoteForm() {
     setIsLoading(true);
     try {
       // Step 1: Upload file
-      const formData = new FormData();
-      formData.append("file", values.file);
+      // const uploadRes = await fetch("/api/upload", {
+      //   method: "POST",
+      //   body: formData,
+      // });
 
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
+      // const uploadData = await uploadRes.json();
 
-      const uploadData = await uploadRes.json();
-
-      if (!uploadData.url) {
-        throw new Error("File upload failed");
-      }
+      // if (!uploadData.url) {
+      //   throw new Error("File upload failed");
+      // }
 
       // Step 2: Submit note data
-      const notePayload = {
-        title: values.title,
-        description: values.description,
-        fileUrl: uploadData.url,
-        branch: values.branch,
-        semester: values.semester,
-        subject: values.subject,
-      };
-
+      // const notePayload = {
+      //   title: values.title,
+      //   description: values.description,
+      //   fileUrl: uploadData.url,
+      //   branch: values.branch,
+      //   semester: values.semester,
+      //   subject: values.subject,
+      // };
+      const formData = new FormData();
+      formData.append("file", values.file);
+      formData.append("title", values.title);
+      formData.append("description", values.description);
+      formData.append("branch", values.branch);
+      formData.append("semester", values.semester);
+      formData.append("subject", values.subject);
+      console.log("formdata", formData);
       const res = await fetch("/api/notes", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(notePayload),
+        body: formData,
       });
 
       if (!res.ok) {
@@ -121,6 +122,8 @@ export default function UploadNoteForm() {
         duration: 5000,
         position: "top-right",
       });
+
+      return await res.json();
     } catch (error) {
       toast("Failed to upload note", {
         icon: "❌",

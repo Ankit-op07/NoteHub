@@ -26,7 +26,7 @@ import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
-import data from "@/app/dashboard/navigationData";
+import { filteredData } from "@/app/dashboard/navigationData";
 import {
   Sidebar,
   SidebarContent,
@@ -41,6 +41,7 @@ import { useRouter } from "next/navigation";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: session, status } = useSession();
+  const data = filteredData();
   const router = useRouter();
   data.user = {
     name: session?.user?.name,

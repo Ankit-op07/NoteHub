@@ -9,7 +9,7 @@ const noteSchema = new mongoose.Schema({
     trim: true,
   },
   description: String,
-  fileUrl: {
+  fileKey: {
     type: String,
     required: true,
   },
@@ -40,6 +40,7 @@ const noteSchema = new mongoose.Schema({
     enum: ['pending', 'approved', 'rejected'],
     default: 'pending',
   },
+  fileName: String,
   fileSize: Number,
   fileType: String,
   likes: { type: Number, default: 0 },

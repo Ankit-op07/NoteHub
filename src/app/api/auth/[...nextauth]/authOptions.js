@@ -65,6 +65,7 @@ export const authOptions = {
 
                 token.id = existingUser._id;
                 token.isOnboarded = existingUser.onBoard
+                token.role = existingUser.role
             }
             return token;
         },
@@ -72,6 +73,7 @@ export const authOptions = {
             if (token?.id) {
                 session.user.id = token.id;
                 session.user.isOnboarded = token.isOnboarded;
+                session.user.role = token.role
             }
             return session;
         },

@@ -14,7 +14,9 @@ import {
     BookOpenCheck,
     NotebookPen,
     ListVideo,
+    Upload as UploadIcon
 } from "lucide-react";
+import { useSession } from "next-auth/react";
 
 const data = {
     user: {
@@ -27,26 +29,37 @@ const data = {
             title: "Dashboard",
             url: "/dashboard",
             icon: LayoutDashboardIcon,
+            role: ["admin", "manager", "student"],
         },
         {
             title: "Browse Notes",
             url: "/dashboard/notes",
             icon: BookOpenText,
+            role: ["admin", "manager", "student"],
         },
         {
             title: "Favorites",
             url: "/dashboard/favorites",
             icon: BookOpenCheck,
+            role: ["admin", "manager", "student"],
         },
         {
             title: "PYQS",
             url: "/dashboard/pyqs",
             icon: NotebookPen,
+            role: ["admin", "manager", "student"],
         },
         {
             title: "Video Lecture",
             url: "/dashboard/videos",
             icon: ListVideo,
+            role: ["admin", "manager", "student"],
+        },
+        {
+            title: "Upload Notes",
+            url: "/dashboard/upload/notes",
+            icon: UploadIcon,
+            role: ["admin", "manager"],
         },
     ],
     navClouds: [
@@ -133,4 +146,10 @@ const data = {
     ],
 };
 
-export default data;
+export const filteredData = () => {
+    const { data: session } = useSession();
+    const role = session?.user?.role;
+    const filteredMainData = data.navMain.filter((item) => item.role.includes(role));
+    data.navMain = filteredMainData
+    return data
+}
