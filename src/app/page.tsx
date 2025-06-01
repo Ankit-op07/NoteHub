@@ -92,12 +92,12 @@ export default function LandingPage() {
           </nav>
           <div className="flex items-center space-x-3">
             <Link
-              href="/login"
+              href="/auth/login"
               className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-all duration-300 premium-hover"
             >
               Login
             </Link>
-            <Link href="/signup">
+            <Link href="/auth/signup">
               <Button
                 size="sm"
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg premium-hover"
@@ -144,14 +144,14 @@ export default function LandingPage() {
                     <ArrowRight className="ml-2 h-4 w-4" />
                   </Button>
                 </Link>
-                <Button
+                {/* <Button
                   variant="outline"
                   size="lg"
                   className="px-6 py-3 border-slate-200 hover:bg-slate-50 premium-hover glass-effect"
                 >
                   <BookOpen className="mr-2 h-4 w-4" />
                   Browse Notes
-                </Button>
+                </Button> */}
               </div>
               <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-500 stats-counter">
                 <div className="flex items-center space-x-2 premium-hover">
