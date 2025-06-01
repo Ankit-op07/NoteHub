@@ -15,15 +15,9 @@ export default function Page() {
   };
 
   return (
-    <div className="max-w-md mx-auto p-6">
+    <div className="max-w-md mx-auto flex justify-center ">
       {/* <h2 className="text-2xl font-bold mb-6 text-center">Student Information</h2> */}
       <Card className="w-[400px]">
-        <CardHeader>
-          <CardTitle>Upload Notes</CardTitle>
-          <CardDescription>
-            Please enter the required details along with the PDF.
-          </CardDescription>
-        </CardHeader>
         <CardContent>
           <NotesForm />
         </CardContent>
