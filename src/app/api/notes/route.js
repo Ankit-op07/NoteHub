@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import Note from "@/models/Note";
 import User from "@/models/User";
+import Favourite from "@/models/Favourite";
 import mongoose from "mongoose";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -114,7 +115,22 @@ export async function POST(req) {
 
 export async function GET(req) {
     try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return new Response(JSON.stringify({ error: "Unauthorized" }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
         await connectToDB();
+
+        const user = await User.findOne({ email: session.user.email });
+        if (!user) {
+            return new Response(JSON.stringify({ error: "User not found" }), {
+                status: 404,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
 
         const { searchParams } = new URL(req.url);
         const branch = searchParams.get("branch");
@@ -136,6 +152,14 @@ export async function GET(req) {
 
         const notes = await Note.find(filter).populate('createdBy', 'name email');
 
+        let favouriteNoteIds = [];
+        const favoriteNotes = await Favourite.find({
+            user: user._id,
+            note: { $in: notes.map(n => n._id) }
+        }).select('note').lean();
+        console.log(favoriteNotes);
+
+        favouriteNoteIds = favoriteNotes.map(fav => fav.note.toString());
         // Generate download URLs for each note
         const notesWithUrls = await Promise.all(notes.map(async (note) => {
             const downloadUrl = await getSignedUrl(
@@ -150,6 +174,7 @@ export async function GET(req) {
             return {
                 ...note.toObject(),
                 downloadUrl,
+                isFavourite: favouriteNoteIds?.includes(note._id.toString()) || false
             };
         }));
 

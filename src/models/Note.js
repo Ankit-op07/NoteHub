@@ -33,8 +33,8 @@ const noteSchema = new mongoose.Schema({
     ref: 'User',
   },
   tags: [String],
-  views: { type: Number, default: 0 },
-  downloads: { type: Number, default: 0 },
+  views: { type: Number, default: 0, min: 0 },
+  downloads: { type: Number, default: 0, min: 0 },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected'],
