@@ -690,7 +690,7 @@ export default function LandingPage() {
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link href="/signup">
+                <Link href="/auth/signup">
                   <Button
                     size="lg"
                     variant="secondary"
@@ -702,9 +702,9 @@ export default function LandingPage() {
                   </Button>
                 </Link>
               </div>
-              <p className="text-sm text-blue-100">
+              {/* <p className="text-sm text-blue-100">
                 No credit card required • Free forever plan available
-              </p>
+              </p> */}
             </div>
           </div>
         </section>
@@ -747,12 +747,6 @@ export default function LandingPage() {
                 >
                   Pricing
                 </Link>
-                <Link
-                  href="#"
-                  className="block hover:text-white transition-colors text-sm"
-                >
-                  API
-                </Link>
               </div>
             </div>
             <div className="space-y-3">
@@ -775,12 +769,6 @@ export default function LandingPage() {
                   className="block hover:text-white transition-colors text-sm"
                 >
                   Careers
-                </Link>
-                <Link
-                  href="#"
-                  className="block hover:text-white transition-colors text-sm"
-                >
-                  Press
                 </Link>
               </div>
             </div>

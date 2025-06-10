@@ -6,7 +6,7 @@ import Favourite from "@/models/Favourite";
 import mongoose from "mongoose";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-
+import { extractPDFText } from "@/lib/pdf-parse"
 // Initialize S3 client
 const s3Client = new S3Client({
     region: process.env.AWS_REGION,
@@ -57,6 +57,24 @@ export async function POST(req) {
                 headers: { 'Content-Type': 'application/json' }
             });
         }
+        console.log(file, 'file');
+        let extractedText = null;
+        let hasTextExtraction = false;
+
+        // Only extract text for PDFs (fast operation - usually < 1 second)
+        if (file.type === 'application/pdf') {
+            console.log('Extracting text from PDF...');
+            const fileBuffer = await file.arrayBuffer();
+            const buffer = Buffer.from(fileBuffer);
+
+            extractedText = await extractPDFText(buffer);
+            hasTextExtraction = !!extractedText;
+
+            // Truncate text for storage (first 15k characters)
+            if (extractedText && extractedText.length > 15000) {
+                extractedText = extractedText.substring(0, 15000);
+            }
+        }
 
         // Generate unique file key for S3
         const fileKey = `notes/${user._id}/${Date.now()}-${file.name}`;
@@ -97,6 +115,8 @@ export async function POST(req) {
             fileName: file.name,
             fileSize: file.size,
             fileType: file.type,
+            extractedText,
+            hasTextExtraction,
         });
 
         return new Response(JSON.stringify({ success: true, note }), {

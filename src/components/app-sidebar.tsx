@@ -20,8 +20,9 @@ import {
   BookOpenCheck,
   NotebookPen,
   ListVideo,
+  GraduationCap,
 } from "lucide-react";
-
+import Link from "next/link";
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
@@ -59,10 +60,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-base font-semibold">College Buddy</span>
-              </a>
+              <Link href="/" className="flex items-center space-x-2">
+                <div className="flex items-center justify-center w-7 h-7 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-lg">
+                  <GraduationCap className="h-4 w-4 text-white" />
+                </div>
+                <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  CollegeBuddy
+                </span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

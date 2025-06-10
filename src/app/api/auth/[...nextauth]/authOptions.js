@@ -17,7 +17,6 @@ export const authOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
-                console.log('called')
                 // Connect to MongoDB if not already connected
                 if (mongoose.connection.readyState === 0) {
                     await mongoose.connect(process.env.MONGODB_URI);

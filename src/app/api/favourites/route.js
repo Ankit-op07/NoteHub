@@ -3,11 +3,32 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/authOptions";
 import Favourite from "@/models/Favourite";
 import mongoose from "mongoose";
+import { NextResponse } from "next/server";
 // import { connectToDB } from "@/lib/dbConnect";
 
 async function connectToDB() {
     if (mongoose.connection.readyState === 0) {
         await mongoose.connect(process.env.MONGODB_URI);
+    }
+}
+
+export async function GET() {
+    try {
+        const session = await getServerSession(authOptions);
+        if (!session) {
+            return new Response(JSON.stringify({ error: "Unauthorized" }), {
+                status: 401,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+        await connectToDB();
+        const userId = session.user.id
+        const Favourites = await Favourite.find({ user: userId }).populate('note');
+        return NextResponse.json({ Favourites }, { status: 200 });
+
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }
 }
 
