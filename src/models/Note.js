@@ -70,7 +70,7 @@ const noteSchema = new mongoose.Schema({
   pyqDuration: { type: Number, default: 0 },
   pyqYear: { type: String, default: '2025' },
   pyqTotalMarks: { type: Number, default: 0 },
-
+  downloadUrl: { type: String, default: null },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

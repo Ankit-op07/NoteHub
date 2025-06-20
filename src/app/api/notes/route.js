@@ -190,7 +190,6 @@ export async function GET(req) {
                 }),
                 { expiresIn: 60 * 60 } // 1 hour
             );
-
             return {
                 ...note.toObject(),
                 downloadUrl,
