@@ -190,6 +190,7 @@ export async function GET(req) {
                 }),
                 { expiresIn: 60 * 60 } // 1 hour
             );
+            console.log('downloadUrl', process.env.AWS_BUCKET_NAME, downloadUrl);
             return {
                 ...note.toObject(),
                 downloadUrl,
