@@ -85,7 +85,7 @@ export default function BrowseNotesPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
               />
-            </div>
+          </div>
             <div className="flex gap-3">
               <Select defaultValue="all">
                 <SelectTrigger className="w-36">
