@@ -16,7 +16,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
   const router = useRouter();
 
   const handleClick = () => {
-    signIn("google", { callbackUrl: "/dashboard/onboard" });
+    signIn("google", { callbackUrl: "/dashboard/notes" });
   };
 
   const handleSubmit = async (e: any) => {
@@ -32,7 +32,7 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     if (result?.error) {
       setError(result.error);
     } else {
-      router.push("/dashboard/onboard");
+      router.push("/dashboard/notes");
     }
   };
   return (
