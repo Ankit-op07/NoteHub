@@ -16,12 +16,12 @@ export default function BrowseNotesPage() {
 
     const fetchNotes = async () => {
       const data = {
-        branch: localStorage.getItem("branch"),
-        semester: localStorage.getItem("semester"),
+        branch:null,
+        semester: null,
       }
 
       const queryParams = new URLSearchParams(data)
-      const url = `/api/notes?${queryParams.toString()}`
+      const url = `/api/notes`
       try {
         const res = await fetch(url)
         const data = await res.json()

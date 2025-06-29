@@ -44,6 +44,7 @@ import {
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import PdfViewer from "@/components/pdf-viewer";
+import { set } from "mongoose";
 
 export default function ReadNotePage() {
   const params = useParams();
@@ -69,6 +70,7 @@ export default function ReadNotePage() {
   const [userQuestion, setUserQuestion] = useState("");
   const [isAskingQuestion, setIsAskingQuestion] = useState(false);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
 
   useEffect(() => {
     async function getNote() {
@@ -116,6 +118,15 @@ export default function ReadNotePage() {
     }, 2000);
   };
 
+  const handleCopySummary = async () => {
+    try {
+      await navigator.clipboard.writeText(generatedSummary);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
   const getSimulatedAnswer = (question: string) => {
     // Simple simulation of AI responses based on keywords in the question
     const q = question.toLowerCase();
@@ -145,7 +156,11 @@ export default function ReadNotePage() {
           <div className="flex flex-col lg:flex-row lg:items-center justify-between border-b pb-4 bg-white gap-4">
             <div className="flex items-start lg:items-center gap-4">
               <Link href="/dashboard/notes">
-                <Button variant="ghost" size="sm" className="flex-shrink-0">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex-shrink-0 cursor-pointer"
+                >
                   <ArrowLeft className="h-4 w-4 mr-2" />
                   Back
                 </Button>
@@ -174,7 +189,7 @@ export default function ReadNotePage() {
               </div>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Button
+              {/* <Button
                 variant={isBookmarked ? "default" : "outline"}
                 size="sm"
                 onClick={() => setIsBookmarked(!isBookmarked)}
@@ -192,14 +207,15 @@ export default function ReadNotePage() {
               >
                 <Share2 className="h-4 w-4 mr-1 lg:mr-2" />
                 <span className="hidden sm:inline">Download</span>
-              </Button>
+              </Button> */}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setShowAIPanel(!showAIPanel)}
+                className="cursor-pointer"
               >
                 <Sparkles className="h-4 w-4" />
-                <span className="ml-1">AI</span>
+                <span className="ml-1 ">AI</span>
               </Button>
             </div>
           </div>
@@ -230,7 +246,7 @@ export default function ReadNotePage() {
             {/* AI tools panel */}
             {showAIPanel && (
               <div
-                className={`${showDocumentPanel ? "w-full lg:w-2/5" : "w-full"} flex flex-col`}
+                className={`${showDocumentPanel ? "w-full lg:w-2/5" : "w-full"} flex flex-col h-screen overflow-auto`}
               >
                 <Tabs defaultValue="summarize" className="flex-1 flex flex-col">
                   <div className="border-b bg-white">
@@ -242,22 +258,14 @@ export default function ReadNotePage() {
                         <FileText className="h-4 w-4 mr-1 lg:mr-2" />
                         <span className="hidden sm:inline">Summarize</span>
                       </TabsTrigger>
-                      {/* <TabsTrigger
-                      value="chat"
-                      className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-purple-600 data-[state=active]:shadow-none rounded-none px-3 lg:px-4 py-2 text-xs lg:text-sm"
-                    >
-                      <MessageSquare className="h-4 w-4 mr-1 lg:mr-2" />
-                      <span className="hidden sm:inline">Ask</span>
-                    </TabsTrigger> */}
                     </TabsList>
                   </div>
-
                   {/* Summarize tab */}
                   <TabsContent
                     value="summarize"
                     className="flex-1 flex flex-col m-0 p-0 data-[state=inactive]:hidden"
                   >
-                    <div className="p-3 lg:p-4 flex-1 overflow-auto">
+                    <div className="p-3 lg:p-4 flex flex-col h-full">
                       {isGeneratingSummary ? (
                         <div className="flex flex-col items-center justify-center h-full">
                           <Loader2 className="h-8 w-8 text-purple-600 animate-spin mb-4" />
@@ -269,7 +277,7 @@ export default function ReadNotePage() {
                           </p>
                         </div>
                       ) : generatedSummary ? (
-                        <div className="space-y-4">
+                        <div className="flex flex-col h-full">
                           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-2">
                             <h3 className="text-base lg:text-lg font-medium flex items-center gap-2">
                               <FileText className="h-5 w-5 text-purple-600" />
@@ -280,30 +288,31 @@ export default function ReadNotePage() {
                                 variant="outline"
                                 size="sm"
                                 className="text-xs"
+                                onClick={() => handleCopySummary()}
                               >
                                 <Copy className="h-4 w-4 mr-1" />
-                                <span className="hidden sm:inline">Copy</span>
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="text-xs"
-                              >
-                                <Download className="h-4 w-4 mr-1" />
-                                <span className="hidden sm:inline">Save</span>
+                                <span className="hidden sm:inline">
+                                  {isCopied ? "Copied!" : "Copy"}
+                                </span>
                               </Button>
                             </div>
                           </div>
 
-                          <div className="prose prose-sm max-w-none text-sm lg:text-base">
-                            <div
-                              dangerouslySetInnerHTML={{
-                                __html: generatedSummary.replace(/\n/g, "<br>"),
-                              }}
-                            />
-                          </div>
+                          {/* Scrollable content area */}
+                          <ScrollArea className="flex-1 py-4">
+                            <div className="prose prose-sm max-w-none text-sm lg:text-base">
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: generatedSummary.replace(
+                                    /\n/g,
+                                    "<br>"
+                                  ),
+                                }}
+                              />
+                            </div>
+                          </ScrollArea>
 
-                          <div className="flex flex-col lg:flex-row lg:items-center justify-between pt-4 border-t gap-2">
+                          {/* <div className="flex flex-col lg:flex-row lg:items-center justify-between pt-4 border-t gap-2">
                             <div className="text-xs lg:text-sm text-slate-500">
                               Was this summary helpful?
                             </div>
@@ -325,7 +334,7 @@ export default function ReadNotePage() {
                                 No
                               </Button>
                             </div>
-                          </div>
+                          </div> */}
                         </div>
                       ) : (
                         <div className="flex flex-col items-center justify-center h-full p-4">
@@ -337,30 +346,6 @@ export default function ReadNotePage() {
                             Get a concise summary with key points and formulas.
                           </p>
                           <div className="space-y-4 w-full max-w-md">
-                            <div className="space-y-2">
-                              <label className="text-sm font-medium">
-                                Summary Type
-                              </label>
-                              <Select defaultValue="comprehensive">
-                                <SelectTrigger className="text-sm">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="brief">
-                                    Brief Overview
-                                  </SelectItem>
-                                  <SelectItem value="comprehensive">
-                                    Comprehensive
-                                  </SelectItem>
-                                  <SelectItem value="bullet-points">
-                                    Bullet Points
-                                  </SelectItem>
-                                  <SelectItem value="study-notes">
-                                    Study Notes
-                                  </SelectItem>
-                                </SelectContent>
-                              </Select>
-                            </div>
                             <Button
                               className="w-full bg-purple-600 hover:bg-purple-700 text-sm"
                               onClick={generateSummary}
@@ -373,7 +358,6 @@ export default function ReadNotePage() {
                       )}
                     </div>
                   </TabsContent>
-
                   {/* Chat tab */}
                   <TabsContent
                     value="chat"

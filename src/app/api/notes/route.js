@@ -145,6 +145,7 @@ export async function GET(req) {
         await connectToDB();
 
         const user = await User.findOne({ email: session.user.email });
+        console.log('USER', user)
         if (!user) {
             return new Response(JSON.stringify({ error: "User not found" }), {
                 status: 404,
@@ -152,36 +153,23 @@ export async function GET(req) {
             });
         }
 
-        const { searchParams } = new URL(req.url);
-        const branch = searchParams.get("branch");
-        const semester = searchParams.get("semester");
-        const subject = searchParams.get("subject");
+        const filter = {
+            branch: user.branch,
+            semester: parseInt(user.semester)
+        };
 
-        const filter = {};
-        if (branch && branch !== "null" && branch !== "undefined") {
-            filter.branch = branch;
-        }
-
-        if (semester && semester !== "null" && semester !== "undefined") {
-            filter.semester = parseInt(semester);
-        }
-
-        if (subject && subject !== "null" && subject !== "undefined") {
-            filter.subject = subject;
-        }
-
+        console.log(filter)
         const notes = await Note.find(filter).populate('createdBy', 'name email');
 
+        console.log('NOTES', notes)
         let favouriteNoteIds = [];
         const favoriteNotes = await Favourite.find({
             user: user._id,
             note: { $in: notes.map(n => n._id) }
         }).select('note').lean();
-        console.log(favoriteNotes);
-
         favouriteNoteIds = favoriteNotes.map(fav => fav.note.toString());
         // Generate download URLs for each note
-        const notesWithUrls = await Promise.all(notes.map(async (note) => {
+        const notesWithUrls = await Promise.all(notes?.map(async (note) => {
             const downloadUrl = await getSignedUrl(
                 s3Client,
                 new GetObjectCommand({
@@ -190,7 +178,6 @@ export async function GET(req) {
                 }),
                 { expiresIn: 60 * 60 } // 1 hour
             );
-            console.log('downloadUrl', process.env.AWS_BUCKET_NAME, downloadUrl);
             return {
                 ...note.toObject(),
                 downloadUrl,
