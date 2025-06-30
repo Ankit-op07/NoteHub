@@ -26,6 +26,7 @@ import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, UploadCloud, FileText, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import branches from "@/lib/branchs";
 
 const formSchema = z.object({
   title: z.string().min(3, {
@@ -170,11 +171,11 @@ export default function UploadNoteForm() {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="cse">Computer Science (CSE)</SelectItem>
-                    <SelectItem value="ece">Electronics (ECE)</SelectItem>
-                    <SelectItem value="mech">Mechanical (MECH)</SelectItem>
-                    <SelectItem value="civil">Civil (CIVIL)</SelectItem>
-                    <SelectItem value="eee">Electrical (EEE)</SelectItem>
+                    {branches.map((branch, idx) => (
+                      <SelectItem key={idx} value={branch.code}>
+                        {branch.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
