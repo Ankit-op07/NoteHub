@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, UploadCloud, FileText, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -38,8 +38,8 @@ const formSchema = z.object({
   semester: z.enum(["1", "2", "3", "4", "5", "6", "7", "8"], {
     required_error: "Please select semester",
   }),
-  subject: z.string().min(3, {
-    message: "Subject must be at least 3 characters",
+  subject: z.string({
+    required_error: "Please select a subject",
   }),
   file: z
     .custom<File>((v) => v instanceof File, {
@@ -65,15 +65,53 @@ export default function UploadNoteForm() {
     type: string;
     size: number;
   } | null>(null);
+  const [subjects, setSubjects] = useState<
+    { id: string; name: string; code: string }[]
+  >([]);
+  const [isFetchingSubjects, setIsFetchingSubjects] = useState(false);
   const router = useRouter();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
+      branch: undefined,
+      semester: undefined,
       subject: "",
     },
   });
+
+  // Watch branch and semester changes
+  const branch = form.watch("branch");
+  const semester = form.watch("semester");
+
+  // Fetch subjects when branch or semester changes
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      if (branch && semester) {
+        try {
+          setIsFetchingSubjects(true);
+          form.setValue("subject", ""); // Reset subject when branch/semester changes
+
+          const response = await fetch(
+            `/api/subjects?branch=${branch}&semester=${semester}`
+          );
+          if (!response.ok) {
+            throw new Error("Failed to fetch subjects");
+          }
+          const data = await response.json();
+          setSubjects(data);
+        } catch (error) {
+          toast.error("Failed to load subjects");
+          setSubjects([]);
+        } finally {
+          setIsFetchingSubjects(false);
+        }
+      }
+    };
+
+    fetchSubjects();
+  }, [branch, semester, form]);
 
   const onDrop = useCallback(
     (acceptedFiles: FileList | null) => {
@@ -164,7 +202,11 @@ export default function UploadNoteForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Branch</FormLabel>
-                <Select onValueChange={field.onChange} disabled={isLoading}>
+                <Select
+                  onValueChange={field.onChange}
+                  disabled={isLoading}
+                  value={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className="w-full focus:ring-2 focus:ring-primary/50">
                       <SelectValue placeholder="Select branch" />
@@ -190,7 +232,11 @@ export default function UploadNoteForm() {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Semester</FormLabel>
-                <Select onValueChange={field.onChange} disabled={isLoading}>
+                <Select
+                  onValueChange={field.onChange}
+                  disabled={isLoading}
+                  value={field.value}
+                >
                   <FormControl>
                     <SelectTrigger className="w-full focus:ring-2 focus:ring-primary/50">
                       <SelectValue placeholder="Select semester" />
@@ -209,21 +255,54 @@ export default function UploadNoteForm() {
             )}
           />
 
-          {/* Subject Field */}
+          {/* Subject Dropdown */}
           <FormField
             control={form.control}
             name="subject"
             render={({ field }) => (
               <FormItem className="md:col-span-2">
                 <FormLabel>Subject</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Enter subject (e.g. DBMS)"
-                    {...field}
-                    disabled={isLoading}
-                    className="focus-visible:ring-2 focus-visible:ring-primary/50"
-                  />
-                </FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  disabled={
+                    isLoading || !branch || !semester || isFetchingSubjects
+                  }
+                  value={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-full focus:ring-2 focus:ring-primary/50">
+                      {isFetchingSubjects ? (
+                        <div className="flex items-center gap-2">
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Loading subjects...</span>
+                        </div>
+                      ) : (
+                        <SelectValue
+                          placeholder={
+                            branch && semester
+                              ? "Select subject"
+                              : "First select branch and semester"
+                          }
+                        />
+                      )}
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {subjects.length > 0 ? (
+                      subjects.map((subject, id) => (
+                        <SelectItem key={id} value={subject.name}>
+                          {subject.name} ({subject.code})
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <div className="py-2 text-center text-sm text-gray-500">
+                        {branch && semester
+                          ? "No subjects found for this branch and semester"
+                          : "Select branch and semester first"}
+                      </div>
+                    )}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
@@ -311,7 +390,7 @@ export default function UploadNoteForm() {
 
         <Button
           type="submit"
-          className="w-full mt-4"
+          className="w-full mt-4 cursor-pointer"
           disabled={isLoading || !filePreview}
           size="lg"
         >
