@@ -152,15 +152,24 @@ export async function GET(req) {
             });
         }
 
-        const filter = {
-            branch: user.branch,
-            semester: parseInt(user.semester)
-        };
+        let filter = {};
 
-        console.log(filter)
+        if (user.onBoard) {
+            const branch = user.branch;
+            const semester = user.semester;
+            if (semester === 1 || semester === 2) {
+                filter = {
+                    semester: semester
+                };
+            } else {
+                filter = {
+                    branch: branch,
+                    semester: semester
+                };
+            }
+        }
+
         const notes = await Note.find(filter).populate('createdBy', 'name email');
-
-        console.log('NOTES', notes)
         let favouriteNoteIds = [];
         const favoriteNotes = await Favourite.find({
             user: user._id,
@@ -169,17 +178,17 @@ export async function GET(req) {
         favouriteNoteIds = favoriteNotes.map(fav => fav.note.toString());
         // Generate download URLs for each note
         const notesWithUrls = await Promise.all(notes?.map(async (note) => {
-            const downloadUrl = await getSignedUrl(
-                s3Client,
-                new GetObjectCommand({
-                    Bucket: process.env.AWS_BUCKET_NAME,
-                    Key: note.fileKey,
-                }),
-                { expiresIn: 60 * 60 } // 1 hour
-            );
+            // const downloadUrl = await getSignedUrl(
+            //     s3Client,
+            //     new GetObjectCommand({
+            //         Bucket: process.env.AWS_BUCKET_NAME,
+            //         Key: note.fileKey,
+            //     }),
+            //     { expiresIn: 60 * 60 } // 1 hour
+            // );
             return {
                 ...note.toObject(),
-                downloadUrl,
+                // downloadUrl,
                 isFavourite: favouriteNoteIds?.includes(note._id.toString()) || false
             };
         }));

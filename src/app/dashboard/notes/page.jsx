@@ -36,24 +36,37 @@ export default function BrowseNotesPage() {
     fetchNotes()
   }, [])
 
-  const bookmarkNote = async (note)=>{
-    const isFav = note.isFavourite
-    const noteId = note._id
-    if(isFav){
-     await  fetch('/api/favourites', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ noteId }),
-    })
-    }else{
-      await  fetch('/api/favourites', {
+const bookmarkNote = async (note) => {
+  const isFav = note.isFavourite;
+  const noteId = note._id;
+  
+  // Optimistically update the UI
+  setNotes(prevNotes => prevNotes.map(n => 
+    n._id === noteId ? { ...n, isFavourite: !isFav } : n
+  ));
+
+  try {
+    if (isFav) {
+      await fetch('/api/favourites', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ noteId }),
+      });
+    } else {
+      await fetch('/api/favourites', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ noteId }),
-      })
+      });
     }
-    fetchNotes()
+  } catch (err) {
+    // Revert if API fails
+    setNotes(prevNotes => prevNotes.map(n => 
+      n._id === noteId ? { ...n, isFavourite: isFav } : n
+    ));
+    console.error("Bookmark update failed:", err);
   }
+};
 
 
 
