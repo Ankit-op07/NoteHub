@@ -32,6 +32,9 @@ export default function BrowseNotesPage() {
         // setLoading(false)
       }
     }
+    const fetchSubject = async () =>{
+      
+    }
   useEffect(() => {
     fetchNotes()
   }, [])

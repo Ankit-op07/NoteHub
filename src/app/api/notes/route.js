@@ -7,6 +7,7 @@ import mongoose from "mongoose";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { extractPDFText } from "@/lib/pdf-parse"
+import { redis } from '@/lib/redis';
 // Initialize S3 client
 const s3Client = new S3Client({
     region: process.env.AWS_REGION,
@@ -15,6 +16,12 @@ const s3Client = new S3Client({
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     },
 });
+
+//Redis Key
+
+function getCacheKey(branch, semester) {
+    return `notes:${branch || 'all'}:${semester || 'all'}`;
+}
 
 // Connect to MongoDB if not already connected
 async function connectToDB() {
@@ -144,7 +151,6 @@ export async function GET(req) {
         await connectToDB();
 
         const user = await User.findOne({ email: session.user.email });
-        console.log('USER', user)
         if (!user) {
             return new Response(JSON.stringify({ error: "User not found" }), {
                 status: 404,
@@ -153,7 +159,7 @@ export async function GET(req) {
         }
 
         let filter = {};
-
+        let cacheKey = ''
         if (user.onBoard) {
             const branch = user.branch;
             const semester = user.semester;
@@ -167,9 +173,24 @@ export async function GET(req) {
                     semester: semester
                 };
             }
+
+            cacheKey = getCacheKey(branch, semester);
         }
 
-        const notes = await Note.find(filter).populate('createdBy', 'name email');
+        const cached = await redis.get(cacheKey);
+        let notes = []
+        if (cached) {
+            // return new Response(JSON.stringify({ notes: cached }), {
+            //     status: 200,
+            //     headers: { 'Content-Type': 'application/json' }
+            // });
+            notes = cached
+            console.log('cached', typeof cached)
+        } else {
+            notes = await Note.find(filter).populate('createdBy', 'name email').lean();
+            console.log('notes', typeof notes)
+            await redis.set(cacheKey, JSON.stringify(notes), { ex: 60 * 60 });
+        }
         let favouriteNoteIds = [];
         const favoriteNotes = await Favourite.find({
             user: user._id,
@@ -186,8 +207,9 @@ export async function GET(req) {
             //     }),
             //     { expiresIn: 60 * 60 } // 1 hour
             // );
+            console.log('note', typeof note)
             return {
-                ...note.toObject(),
+                ...note,
                 // downloadUrl,
                 isFavourite: favouriteNoteIds?.includes(note._id.toString()) || false
             };
