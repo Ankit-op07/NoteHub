@@ -8,12 +8,15 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, Filter, Star, Download, Eye, User, Bookmark, Grid, List, BookmarkPlus, BookmarkMinus   } from "lucide-react"
 import Link from "next/link"
+import { useSession } from "next-auth/react";
+
 
 export default function BrowseNotesPage() {
   const [viewMode, setViewMode] = useState("grid")
   const [searchQuery, setSearchQuery] = useState("")
   const [notes, setNotes] = useState([])
-
+  const [subjects, setSubjects] = useState([])
+ const { data: session } = useSession();
     const fetchNotes = async () => {
       const data = {
         branch:null,
@@ -33,10 +36,20 @@ export default function BrowseNotesPage() {
       }
     }
     const fetchSubject = async () =>{
-      
+      const branch = session.user.branch
+      const semester = session.user.semester
+      let subjects = []
+      if(branch && semester){
+      subjects = await fetch(`/api/subjects?branch=${branch}&semester=${semester}`)
+      }else{
+        subjects = await fetch(`/api/subjects`)
+      }
+      const data = await subjects.json()
+      setSubjects(data)
     }
   useEffect(() => {
     fetchNotes()
+    fetchSubject()
   }, [])
 
 const bookmarkNote = async (note) => {
@@ -109,9 +122,11 @@ const bookmarkNote = async (note) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Subjects</SelectItem>
-                  <SelectItem value="math">Mathematics</SelectItem>
-                  <SelectItem value="cs">Computer Science</SelectItem>
-                  <SelectItem value="chemistry">Chemistry</SelectItem>
+                  {subjects.map((subject,Idx)=>{
+                    return(
+                      <SelectItem key={Idx} value={subject.code}>{subject.name}</SelectItem>
+                    )
+                  })}
                 </SelectContent>
               </Select>
               <Select defaultValue="recent">

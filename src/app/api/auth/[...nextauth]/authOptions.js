@@ -3,6 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import mongoose from "mongoose";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
+import { toNamespacedPath } from "path";
 
 export const authOptions = {
     providers: [
@@ -65,6 +66,8 @@ export const authOptions = {
                 token.id = existingUser._id;
                 token.isOnboarded = existingUser.onBoard
                 token.role = existingUser.role
+                token.branch = existingUser.branch || null
+                token.semester = existingUser.semester || null
             }
             return token;
         },
@@ -73,6 +76,8 @@ export const authOptions = {
                 session.user.id = token.id;
                 session.user.isOnboarded = token.isOnboarded;
                 session.user.role = token.role
+                session.user.branch = token.branch
+                session.user.semester = token.semester
             }
             return session;
         },

@@ -150,7 +150,7 @@ export async function GET(req) {
         }
         await connectToDB();
 
-        const user = await User.findOne({ email: session.user.email });
+        const user = await User.findOne({ email: session.user.email }).lean();
         if (!user) {
             return new Response(JSON.stringify({ error: "User not found" }), {
                 status: 404,
