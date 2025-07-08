@@ -38,8 +38,8 @@ const data = {
             role: ["admin", "manager", "student"],
         },
         {
-            title: "Favorites",
-            url: "/dashboard/favorites",
+            title: "Bookmarks",
+            url: "/dashboard/bookmarks",
             icon: BookOpenCheck,
             role: ["admin", "manager", "student"],
         },
